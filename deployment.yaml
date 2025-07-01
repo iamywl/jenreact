@@ -1,0 +1,21 @@
+# deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: react-app-deployment
+spec:
+  replicas: 2 # 동일한 Pod를 2개 만들어 안정성을 높입니다.
+  selector:
+    matchLabels:
+      app: react-app
+  template:
+    metadata:
+      labels:
+        app: react-app
+    spec:
+      containers:
+      - name: react-app
+        # 이 부분은 Jenkinsfile에서 실제 이미지 주소로 자동 변경됩니다.
+        image: YOUR_DOCKERHUB_USERNAME/jenreact:latest
+        ports:
+        - containerPort: 80
