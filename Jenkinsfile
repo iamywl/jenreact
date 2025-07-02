@@ -1,8 +1,7 @@
-// Jenkinsfile (Docker Sidecar 컨테이너 추가 최종 버전)
+// Jenkinsfile (Docker 이미지 태그 수정 최종 버전)
 pipeline {
     agent {
         kubernetes {
-            // 파이프라인을 실행할 Pod의 상세 스펙을 직접 정의
             yaml '''
 apiVersion: v1
 kind: Pod
@@ -19,7 +18,9 @@ spec:
         mountPath: /home/jenkins/agent
   # 2. Docker 명령어를 실행할 docker 컨테이너 추가
   - name: docker
-    image: docker:27.0-git
+    # ================ 여기 이미지 태그를 수정했습니다 ================
+    image: docker:27.0 
+    # ========================================================
     command: ['cat']
     tty: true
     volumeMounts:
@@ -53,7 +54,6 @@ spec:
 
         stage('Build Docker Image') {
             steps {
-                // 'docker' 라는 이름의 컨테이너 안에서 아래 작업을 실행하도록 지정
                 container('docker') {
                     script {
                         echo "도커 이미지를 빌드합니다: ${IMAGE_NAME}:${env.BUILD_NUMBER}"
@@ -65,7 +65,6 @@ spec:
 
         stage('Push to Docker Hub') {
             steps {
-                 // 'docker' 라는 이름의 컨테이너 안에서 아래 작업을 실행하도록 지정
                 container('docker') {
                     script {
                         echo "이미지를 Docker Hub로 푸시합니다."
@@ -80,7 +79,6 @@ spec:
 
         stage('Deploy to Kubernetes') {
             steps {
-                // jnlp 컨테이너는 kubectl을 가지고 있지 않으므로, docker 컨테이너에서 실행
                 container('docker') {
                     withKubeConfig() {
                         echo '쿠버네티스에 배포를 시작합니다.'
