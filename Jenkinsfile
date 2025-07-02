@@ -1,8 +1,7 @@
-// Jenkinsfile (Agent 직접 정의 최종 버전)
+// Jenkinsfile (따옴표 수정 최종 버전)
 pipeline {
     agent {
         kubernetes {
-            // 파이프라인을 실행할 Pod의 상세 스펙을 직접 정의
             yaml '''
 apiVersion: v1
 kind: Pod
@@ -40,8 +39,9 @@ spec:
             steps {
                 script {
                     echo "도커 이미지를 빌드합니다: ${IMAGE_NAME}:${env.BUILD_NUMBER}"
-                    // jnlp 컨테이너에서 docker build 실행
-                    sh 'docker build -t ${IMAGE_NAME} --tag ${IMAGE_NAME}:${env.BUILD_NUMBER} .'
+                    // ================ 여기 따옴표를 수정했습니다 ================
+                    sh "docker build -t ${IMAGE_NAME} --tag ${IMAGE_NAME}:${env.BUILD_NUMBER} ."
+                    // ========================================================
                 }
             }
         }
