@@ -1,20 +1,22 @@
-// Jenkinsfile (ARM 아키텍처 호환 이미지 사용 최종 버전)
+// Jenkinsfile (최종 권한 문제 해결 버전)
 pipeline {
     agent {
         kubernetes {
+            // ⚠️ Agent Pod가 실행될 네임스페이스를 'jenkins'로 지정
+            namespace 'jenkins'
             yaml '''
 apiVersion: v1
 kind: Pod
 spec:
+  # ⚠️ jenkins 네임스페이스의 default 서비스 계정을 사용하도록 지정
+  serviceAccountName: default
   containers:
-  # 1. Jenkins와 통신하는 기본 jnlp 컨테이너
   - name: jnlp
     image: jenkins/inbound-agent:3309.v27b_9314fd1a_4-6
     args: ['$(JENKINS_SECRET)', '$(JENKINS_NAME)']
     volumeMounts:
       - name: workspace-volume
         mountPath: /home/jenkins/agent
-  # 2. Docker 명령어를 실행할 docker 컨테이너 추가
   - name: docker
     image: docker:27.0
     command: ['cat']
@@ -24,7 +26,6 @@ spec:
         mountPath: /var/run/docker.sock
       - name: workspace-volume
         mountPath: /home/jenkins/agent
-  # ⚠️ ARM 호환성이 검증된 dtzar/helm-kubectl 이미지로 변경
   - name: kubectl
     image: dtzar/helm-kubectl:latest
     command: ['cat']
@@ -79,7 +80,6 @@ spec:
 
         stage('Deploy to Kubernetes') {
             steps {
-                // ⚠️ kubectl 컨테이너 이름은 그대로 유지
                 container('kubectl') {
                     echo '쿠버네티스에 배포를 시작합니다.'
                     sh "sed -i 's|image: .*|image: ${IMAGE_NAME}:${env.BUILD_NUMBER}|g' deployment.yaml"
