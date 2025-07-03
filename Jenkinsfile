@@ -7,12 +7,14 @@ apiVersion: v1
 kind: Pod
 spec:
   containers:
+  # 1. Jenkins와 통신하는 기본 jnlp 컨테이너
   - name: jnlp
     image: jenkins/inbound-agent:3309.v27b_9314fd1a_4-6
     args: ['$(JENKINS_SECRET)', '$(JENKINS_NAME)']
     volumeMounts:
       - name: workspace-volume
         mountPath: /home/jenkins/agent
+  # 2. Docker 명령어를 실행할 docker 컨테이너 추가
   - name: docker
     image: docker:27.0
     command: ['cat']
@@ -56,6 +58,7 @@ spec:
 
         stage('Build Docker Image') {
             steps {
+                // 'docker' 라는 이름의 컨테이너 안에서 아래 작업을 실행하도록 지정
                 container('docker') {
                     echo "도커 이미지를 빌드합니다: ${IMAGE_NAME}:${env.BUILD_NUMBER}"
                     sh "docker build -t ${IMAGE_NAME} --tag ${IMAGE_NAME}:${env.BUILD_NUMBER} ."
