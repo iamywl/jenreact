@@ -1,4 +1,4 @@
-// Jenkinsfile (최종 Agent 이미지 수정 버전)
+// Jenkinsfile (ARM 아키텍처 호환 이미지 사용 최종 버전)
 pipeline {
     agent {
         kubernetes {
@@ -24,9 +24,9 @@ spec:
         mountPath: /var/run/docker.sock
       - name: workspace-volume
         mountPath: /home/jenkins/agent
-  # ⚠️ bitnami/kubectl 대신 google/cloud-sdk 이미지로 변경
+  # ⚠️ ARM 호환성이 검증된 dtzar/helm-kubectl 이미지로 변경
   - name: kubectl
-    image: google/cloud-sdk:latest
+    image: dtzar/helm-kubectl:latest
     command: ['cat']
     tty: true
     volumeMounts:
@@ -79,7 +79,7 @@ spec:
 
         stage('Deploy to Kubernetes') {
             steps {
-                // ⚠️ kubectl이 포함된 google/cloud-sdk 컨테이너에서 배포 작업 실행
+                // ⚠️ kubectl 컨테이너 이름은 그대로 유지
                 container('kubectl') {
                     echo '쿠버네티스에 배포를 시작합니다.'
                     sh "sed -i 's|image: .*|image: ${IMAGE_NAME}:${env.BUILD_NUMBER}|g' deployment.yaml"
