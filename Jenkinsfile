@@ -58,7 +58,6 @@ spec:
 
         stage('Build Docker Image') {
             steps {
-                // 'docker' 라는 이름의 컨테이너 안에서 아래 작업을 실행하도록 지정
                 container('docker') {
                     echo "도커 이미지를 빌드합니다: ${IMAGE_NAME}:${env.BUILD_NUMBER}"
                     sh "docker build -t ${IMAGE_NAME} --tag ${IMAGE_NAME}:${env.BUILD_NUMBER} ."
